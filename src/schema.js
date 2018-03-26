@@ -1,11 +1,11 @@
-const { makeExecutableSchema } = require("graphql-tools");
-const fetch = require("node-fetch");
-const dailyMeals = require("../data/meals");
-const gql = String.raw;
+const { makeExecutableSchema } = require('graphql-tools')
+const fetch = require('node-fetch')
+const dailyMeals = require('../data/meals')
+const gql = String.raw
 
-const { TESCO_API_URL, TESCO_API_KEY } = process.env;
-const offset = 0;
-const limit = 10;
+const { TESCO_API_URL, TESCO_API_KEY } = process.env
+const offset = 0
+const limit = 10
 
 const typeDefs = gql`
   type Query {
@@ -32,7 +32,7 @@ const typeDefs = gql`
     description: String!
     portion: String
   }
-`;
+`
 
 const resolvers = {
   Query: {
@@ -42,32 +42,32 @@ const resolvers = {
           products.map(async ({ name, id }) => {
             const data = await fetch(
               `${TESCO_API_URL}?query=${name}&offset=${offset}&limit=${limit}`,
-              { headers: { "Ocp-Apim-Subscription-Key": TESCO_API_KEY } }
-            );
-            const response = data.json();
+              { headers: { 'Ocp-Apim-Subscription-Key': TESCO_API_KEY } }
+            )
+            const response = data.json()
             if (response.statusCode) {
-              throw response.message;
+              throw response.message
             }
 
-            const results = response.uk.ghs.products.results;
+            const results = response.uk.ghs.products.results
             const articles = results.map(
               ({ id, tpnb, name, image, description }) => {
-                return { id, tpnb, name, image, description };
+                return { id, tpnb, name, image, description }
               }
-            );
+            )
 
-            return { name, id, articles };
-          });
+            return { name, id, articles }
+          })
         })
-      );
+      )
     }
   }
-};
+}
 
 // Required: Export the GraphQL.js schema object as "schema"
 const schema = makeExecutableSchema({
   typeDefs,
   resolvers
-});
+})
 
-module.exports = { schema };
+module.exports = { schema }
