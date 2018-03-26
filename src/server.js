@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require("express");
 const { graphqlExpress, graphiqlExpress } = require("apollo-server-express");
 const bodyParser = require("body-parser");
