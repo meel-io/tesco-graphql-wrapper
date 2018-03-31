@@ -1,13 +1,11 @@
-const { makeExecutableSchema } = require('graphql-tools')
 const fetch = require('node-fetch')
 const dailyMeals = require('../data/meals')
-const gql = String.raw
 
 const { TESCO_API_URL, TESCO_API_KEY } = process.env
 const offset = 0
 const limit = 10
 
-const typeDefs = gql`
+const typeDefs = `
   type Query {
     meals: [Meal]
   }
@@ -39,7 +37,7 @@ const resolvers = {
     meals: (root, args, context) => {
       return Promise.all(
         dailyMeals.map(({ products, name, id }) => {
-          products.map(async ({ name, id }) => {
+          return products.map(async ({ name, id }) => {
             const data = await fetch(
               `${TESCO_API_URL}?query=${name}&offset=${offset}&limit=${limit}`,
               { headers: { 'Ocp-Apim-Subscription-Key': TESCO_API_KEY } }
@@ -64,10 +62,4 @@ const resolvers = {
   }
 }
 
-// Required: Export the GraphQL.js schema object as "schema"
-const schema = makeExecutableSchema({
-  typeDefs,
-  resolvers
-})
-
-module.exports = { schema }
+module.exports = { typeDefs, resolvers }

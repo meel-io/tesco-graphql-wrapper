@@ -1,73 +1,36 @@
 require('dotenv').config()
-const express = require('express')
-const { graphqlExpress, graphiqlExpress } = require('apollo-server-express')
-const bodyParser = require('body-parser')
-const { ApolloEngine } = require('apollo-engine')
+const { GraphQLServer } = require('graphql-yoga')
+const { ApolloEngineLauncher } = require('apollo-engine')
+const { typeDefs, resolvers } = require('./schema')
 
-const { schema } = require('./schema')
+const engineKey = process.env.APOLLO_ENGINE_KEY
+const port = process.env.PORT || 4000
+const endpoint = process.env.ENDPOINT || '/'
 
-const app = express()
+const server = new GraphQLServer({ typeDefs, resolvers })
 
-if (!process.env.TESCO_API_KEY) {
-  throw new Error(
-    'Please provide an API key for Tesco in the environment variable TESCO_API_KEY.'
-  )
-}
-
-if (!process.env.ENGINE_API_KEY) {
-  throw new Error(
-    'Please provide an API key for Apollo Engine in the environment variable ENGINE_API_KEY.'
-  )
-}
-
-app.post(
-  '/graphql',
-  bodyParser.json(),
-  graphqlExpress({
-    schema,
-    tracing: true,
-    cacheControl: true,
-    context: {
-      secrets: {
-        TESCO_API_KEY: process.env.TESCO_API_KEY
-      }
-    }
-  })
+server.start({ port, cacheControl: true }, () =>
+  console.log(`Server is running on localhost:${port}`)
 )
 
-app.get(
-  '/graphiql',
-  graphiqlExpress({
-    endpointURL: '/graphql'
-  })
-)
-
-app.use(express.static('public'))
-
-const PORT = process.env.PORT || 3000
-
-const engine = new ApolloEngine({
-  apiKey: process.env.ENGINE_API_KEY,
-  stores: [
+const launcher = new ApolloEngineLauncher({
+  apiKey: engineKey,
+  origins: [
     {
-      name: 'publicResponseCache',
-      inMemory: {
-        cacheSize: 10485760
+      http: {
+        url: `http://localhost:${port}${endpoint}`
       }
     }
   ],
-  queryCache: {
-    publicFullQueryStore: 'publicResponseCache'
-  }
+  frontends: [
+    {
+      port,
+      endpoints: [endpoint]
+    }
+  ]
 })
 
-// Start the app
-engine.listen(
-  {
-    port: PORT,
-    expressApp: app
-  },
-  () => {
-    console.log(`Go to http://localhost:${PORT}/graphiql to run queries!`)
-  }
-)
+// Start the Proxy; crash on errors.
+launcher.start().catch(err => {
+  throw err
+})
