@@ -5,6 +5,7 @@ const { typeDefs, resolvers } = require('./schema')
 
 const engineKey = process.env.APOLLO_ENGINE_KEY
 const port = process.env.PORT || 4000
+const frontendPort = process.env.APOLLO_PORT || 3000
 const endpoint = process.env.ENDPOINT || '/'
 
 const server = new GraphQLServer({ typeDefs, resolvers })
@@ -24,7 +25,7 @@ const launcher = new ApolloEngineLauncher({
   ],
   frontends: [
     {
-      port,
+      port: frontendPort,
       endpoints: [endpoint]
     }
   ]
