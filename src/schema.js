@@ -1,5 +1,5 @@
 const fetch = require('node-fetch')
-const dailyMeals = require('../data/meals')
+const { getMeals } = require('./data')
 
 const { TESCO_API_URL, TESCO_API_KEY } = process.env
 const offset = 0
@@ -34,7 +34,8 @@ const typeDefs = `
 
 const resolvers = {
   Query: {
-    meals: (root, args, context) => {
+    meals: async (root, args, { connection }) => {
+      const dailyMeals = await getMeals(connection)
       return Promise.all(
         dailyMeals.map(({ products, name, id }) => {
           const formattedProducts = products.map(async ({ name, id }) => {
