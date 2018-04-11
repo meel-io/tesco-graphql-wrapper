@@ -41,15 +41,15 @@ Using:
 
 You'll need to get two API Keys
 
-1.  Tesco General API Key
-2.  Apollo Engine API Key
+1.  [Tesco General API Key](https://devportal.tescolabs.com/products/56c73300d73fa303ed060001)
+2.  [Apollo Engine API Key](https://engine.apollographql.com/)
 
 Then
 
-`docker-compose up`
+```docker-compose up```
 
 And out to the playground...
 
 (By default)
 
-`http://localhost:4000`
+```http://localhost:4000```
