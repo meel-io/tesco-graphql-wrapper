@@ -1,0 +1,6 @@
+version: '2'
+services:
+  web:
+    ports:
+     - "9229:9229"
+    entrypoint: node --inspect-brk=0.0.0.0:9229 src/server.js
