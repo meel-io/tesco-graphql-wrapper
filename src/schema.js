@@ -1,41 +1,15 @@
 const fetch = require('node-fetch')
 const { getMeals } = require('./data')
+const typeDefs = require('./typeDefs')
 
 const { TESCO_API_URL, TESCO_API_KEY } = process.env
 const offset = 0
 const limit = 10
 
-const typeDefs = `
-  type Query {
-    meals: [Meal]
-  }
-
-  type Meal @cacheControl(maxAge: 60) {
-    id: ID
-    name: String
-    products: [Product]
-  }
-
-  type Product @cacheControl(maxAge: 60) {
-    id: ID
-    name: String
-    articles: [Article]
-  }
-
-  type Article @cacheControl(maxAge: 60) {
-    id: ID
-    tpnb: Int
-    name: String
-    image: String
-    description: String!
-    portion: String
-  }
-`
-
 const resolvers = {
   Query: {
-    meals: async (root, args, { connection }) => {
-      const dailyMeals = await getMeals(connection)
+    meals: async (root, args, { db }) => {
+      const dailyMeals = await getMeals(db)
       return Promise.all(
         dailyMeals.map(({ products, name, id }) => {
           const formattedProducts = products.map(async ({ name, id }) => {

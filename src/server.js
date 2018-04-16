@@ -12,7 +12,8 @@ const connectionString = process.env.MONGO_URL || 'mongodb://mongo:27017'
 
 const start = async () => {
   const connection = await mongoClient.connect(connectionString)
-  const context = { connection }
+  const db = await connection.db('groceries')
+  const context = { db }
   const server = new GraphQLServer({ typeDefs, resolvers, context })
 
   server.start({ port, cacheControl: true }, () =>

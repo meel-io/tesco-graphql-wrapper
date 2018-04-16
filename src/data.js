@@ -1,5 +1,5 @@
-const getMeals = async connection => {
-  const meals = connection.collection('meals')
+const getMeals = async db => {
+  const meals = db.collection('meals')
 
   return meals.find({}).toArray()
 }
